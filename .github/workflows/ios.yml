@@ -1,0 +1,24 @@
+name: Build iOS IPA
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install SDL2
+        run: brew install sdl2
+        
+      - name: Build IPA
+        run: |
+          xcodebuild -project "dependencies/RSDKv4.xcodeproj" -scheme "RSDKv4" -configuration Release -sdk iphoneos CODE_SIGNING_ALLOWED=NO
+          mkdir -p Payload
+          cp -r "dependencies/build/Release-iphoneos/RSDKv4.app" Payload/
+          zip -r RSDKv4.ipa Payload
+          
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sonic1-Decomp-IPA
+          path: RSDKv4.ipa
